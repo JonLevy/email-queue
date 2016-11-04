@@ -8,6 +8,7 @@ from email.message import Message
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.sendmail import get_smtp_server
 from trytond.transaction import Transaction
+from trytond.config import config
 
 __all__ = ['EmailQueue']
 
@@ -102,7 +103,8 @@ class EmailQueue(ModelSQL, ModelView):
         """
         server = get_smtp_server()
 
-        for mail in cls.search([('state', '=', 'outbox')]):
+        for mail in cls.search([('state', '=', 'outbox')],
+                limit=config.get('email', 'batch_email_limit')):
             mail.send(server)
 
         server.quit()
